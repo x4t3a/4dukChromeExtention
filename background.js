@@ -31,8 +31,8 @@ function start() {
 
 
 function stop() {
+    audio.src = "";
     audio.load();
-    audio.pause();
     playing = false;
 };
 
