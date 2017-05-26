@@ -1,6 +1,4 @@
 {
-"update_url": "https://clients2.google.com/service/update2/crx",
-
    "background": {
       "scripts": [ "background.js" ],
       "persistent": true
@@ -15,12 +13,12 @@
             "suggested_key": {
               "default": "Ctrl+Shift+4"
             },
-            "description": "Toggle playing",
+            "description": "Вкл/Выкл",
             "global": true
         }
    },
-   "description": "der RaschKnopf 4duk",
-   "homepage_url": "http://andrejkater.me/4duk",
+   "description": "Быстрокнопка 4duk",
+   "homepage_url": "https://x4t3a.github.io/4duk/",
    "icons": {
       "128": "icon.png"
    },

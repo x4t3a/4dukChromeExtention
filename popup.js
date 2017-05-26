@@ -33,9 +33,20 @@ function main() {
 
 function setQualityBtnText() {
     chrome.runtime.sendMessage({method: "getStream"}, function(response) {
-        console.log(response.streamName);
+		var name = "";
+        switch (response.streamName) {
+            case "hohe": {
+                name = "Качественно";
+            } break;
+            default: case "mittlere": {
+                name = "Лёгкие помехи";
+            } break;
+            case "geringe": {
+                name = "Экономно";
+            } break;
+        }
         var btn = document.getElementById("quality_btn");
-        btn.textContent = response.streamName;
+        btn.textContent = name;
     });
 };
 
