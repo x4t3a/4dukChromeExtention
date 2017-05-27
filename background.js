@@ -1,109 +1,72 @@
-/**
- * When chrome popup goes out of scope, all its scripts also do so.
- * Audio stops playing T.T
- * To prevent this we need something running in the background.
- * Chrome provides such functionality;
- * look for "background" field in the manifest.json
- * in which the background script is specified.
- * This script provides interface (free functions) which can be accessed via
- *      chrome.extension.getBackgroundPage()
- */
+;
+"use strict";
 
+var duk = (function() {
+    var streams = { 40  : "http://radio.4duk.ru/4duk40.mp3"
+                  , 64  : "http://radio.4duk.ru/4duk64.mp3"
+                  , 128 : "http://radio.4duk.ru/4duk128.mp3"
+                  };
 
-var streams = {
-    "hohe"   : "http://radio.4duk.ru/4duk128.mp3",
-    "mittlere" : "http://radio.4duk.ru/4duk64.mp3",
-    "geringe"    : "http://radio.4duk.ru/4duk40.mp3",
-};
+    var audio = new Audio(); var playing = false;
 
+    function isPlaying() { return playing; }
+    function setPlaying(p) { playing = true; return playing; }
 
-var audio = new Audio();
-var playing = false;
+    function getStreamQuality()        { return localStorage[ "stream_quality" ] || 128; }
+    function setStreamQuality(stream_quality) { localStorage[ "stream_quality" ] = stream_quality; }
 
-function isPlaying() { return playing; }
-
-function start() {
-	audio.src = streams[ getStreamName() ];
-    audio.loop = true; /* Duct-tape. */
-    audio.play();
-    playing = true;
-};
-
-
-function stop() {
-    audio.src = "";
-    audio.load();
-    playing = false;
-};
-
-
-function shiftQuality() {
-    var name = getStreamName();
-    switch (name) {
-        case "hohe": {
-            name = "geringe";
-        } break;
-        default: case "mittlere": {
-            name = "hohe";
-        } break;
-        case "geringe": {
-            name = "mittlere";
-        } break;
-    }
-    setStreamName(name);
-    audio.pause();
-    audio.src = streams[ name ];
-    if (playing) {
+    function startPlaying() {
+        audio.src = streams[ getStreamQuality() ];
+        audio.load();
         audio.play();
+        setPlaying(true);
+
+        console.log(arguments.callee.name, audio.src);
     }
-};
 
+    function stopPlaying() {
+        audio.pause();
+        audio.currentTime = 0;
+        audio.src = "";
+        setPlaying(false);
 
-function getStreamName() {
-    return localStorage[ "stream" ] || "mittlere";
-}
-
-
-function setStreamName(name) {
-    localStorage[ "stream" ] = name;
-}
-
-
-chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
-    var response = {};
-    switch (request.method) {
-        case "getStream": {
-            response = {streamName: getStreamName()};
-        } break;
-        default: {
-        } break;
+        console.log(arguments.callee.name);
     }
-    sendResponse(response);
-});
 
-chrome.commands.onCommand.addListener(function(command) {
-    console.log('onCommand event received for message: ', command);
-    switch (command) {
-        case "toogle-playing": {
-            if (playing) {
-                stop();
-            } else {
-                start();
+    function shiftQuality() {
+        var stream_quality = { 40  : 64
+                             , 64  : 128
+                             , 128 : 40
+                             }[ getStreamQuality() ];
+        var was_playing = isPlaying();
+        stopPlaying();
+        setStreamQuality(stream_quality);
+        if (was_playing) { startPlaying(); }
+
+        console.log(arguments.callee.name);
+    }
+
+    chrome.commands.onCommand.addListener(function(command) {
+        console.log("chrome commands' listener: ", command);
+
+        switch (command) {
+            case "toogle-playing": {
+                if (isPlaying()) {
+                    stopPlaying();
+                } else {
+                    startPlaying();
+                }
             }
         }
-    }
-});
+    });
 
-/* For later debugging.
-audio.addEventListener("canplay", function() {
-    alert("canplay");
-});
+    return { startPlaying     : startPlaying
+           , stopPlaying      : stopPlaying
+           , shiftQuality     : shiftQuality
+           , isPlaying        : isPlaying
+           , getStreamQuality : getStreamQuality
+    };
+}());
 
-audio.addEventListener("stalled", function() {
-    alert("stalled");
-});
+function getDuk() { return duk; };
 
-audio.addEventListener("abort", function() {
-    alert("abort");
-});
-*/
