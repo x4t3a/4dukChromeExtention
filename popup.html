@@ -1,54 +1,56 @@
 <!doctype html>
-<!-- Well, tables for designing... -->
 <html>
-<head>
+<head lang='ru'>
     <title>4duk</title>
     <meta charset="utf-8">
     <style>
-    html, body {
-        width: 140px;
-        height: 88px;
-        margin: 0px;
-    }
+        html, body {
+            margin: 0;
+            padding: 0;
+            width: 170px;
+        }
+
+        .duk-btn {
+            border: none;
+            display: inline-block;
+            outline:0;
+            padding: 8px 16px;
+            vertical-align: middle;
+            overflow: hidden;
+            text-decoration: none;
+            color: inherit;
+            background-color: inherit;
+            text-align: center;
+            cursor: pointer;
+            white-space: nowrap;
+        }
+
+        .duk-block {
+            display: block;
+            width: 100%;
+        }
+
+        .duk-orange      { color: white !important; background-color: orange  !important; }
+        .duk-green       { color: white !important; background-color: green   !important; }
+        .duk-red         { color: white !important; background-color: red     !important; }
+        .duk-low-quality { color: white !important; background-color: olive   !important; }
+        .duk-mid-quality { color: white !important; background-color: #673ab7 !important; }
+        .duk-hig-quality { color: white !important; background-color: #009688 !important; }
     </style>
 </head>
 
 <body>
     <div>
-        <div>
-            <table style="width: 100%; float: right;"> <tr>
-            <tbody style="width: 100%">
-            <td>
-                <h3><a id="4duk_link" href="">4duk</a></h3>
-            </td>
-            <td>
-            <button style="float: right;"
-                    type="button"
-                    id="close_btn"
-            >
-                &#x2717;
+            <button class="duk-btn duk-block duk-orange"
+                    id="4duk_link">
+                4duk
             </button>
-            </td>
-            </tbody>
-            <tr> </table>
-        </div>
-        <div>
-            <button style="width: 100%;"
-                    type="button"
-					id="start_btn"
-            >
-                Вкл
+            <button class="duk-btn duk-block"
+					id="toggle_btn">
+                Вкл/Выкл
             </button>
-            <button style="width: 100%;"
-                    type="button"
-                    id="stop_btn"
-            >
-                Выкл
-            </button>
-            <button style="width: 100%;"
-                    type="button"
-                    id="quality_btn"
-            >
+            <button class="duk-btn duk-block"
+                    id="quality_btn">
                 Качество
             </button>
         </div>

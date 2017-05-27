@@ -9,25 +9,22 @@
         console.log(arguments.callee.name);
 
         setQualityBtnText();
+        setToggleBtnText();
     	
-        document.getElementById("start_btn")
+        document.getElementById("toggle_btn")
                 .addEventListener("click", function() {
-                    duk.startPlaying();
-                });
-        
-        document.getElementById("stop_btn")
-                .addEventListener("click", function() {
-                    duk.stopPlaying();
+                    if (duk.isPlaying()) {
+                        duk.stopPlaying();
+                        setToggleBtnText("Вкл");
+                    } else {
+                        duk.startPlaying();
+                        setToggleBtnText("Выкл");
+                    }
                 });
     
         document.getElementById("4duk_link")
                 .addEventListener("click", function() {
                     chrome.tabs.create({url: "http://4duk.ru"});
-                });
-    
-        document.getElementById("close_btn")
-                .addEventListener("click", function() {
-                    window.close();
                 });
     
         document.getElementById("quality_btn")
@@ -38,11 +35,48 @@
     }
 
     function setQualityBtnText() {
-        var stream_name = { 40  : "Экономно"
-                          , 64  : "Лёгкие помехи"
-                          , 128 : "Качественно"
-                          }[ duk.getStreamQuality() ];
-        document.getElementById("quality_btn").textContent = stream_name;
+        var stream = null;
+        var btn = document.getElementById("quality_btn");
+
+        switch (duk.getStreamQuality()) {
+            case "40":  {
+                stream = { name : "Экономно"
+                         , rem  : "duk-hig-quality"
+                         , add  : "duk-low-quality"
+                         };
+            } break;
+            case "64":  {
+                stream = { name : "С лёгкими помехами"
+                         , rem  : "duk-low-quality"
+                         , add  : "duk-mid-quality"
+                         };
+            } break;
+            case "128": {
+                stream = { name : "Зело квалитетно"
+                         , rem  : "duk-mid-quality"
+                         , add  : "duk-hig-quality"
+                         };
+            } break;
+        }
+
+        btn.classList.remove(stream.rem);
+        btn.classList.add(stream.add);
+        btn.textContent = stream.name;
+    }
+
+    function setToggleBtnText() {
+        var text = null;
+        var btn = document.getElementById("toggle_btn");
+
+        if (duk.isPlaying()) {
+            btn.textContent = "Выкл";
+            btn.classList.remove("duk-red");
+            btn.classList.add("duk-green");
+        } else {
+            btn.textContent = "Вкл";
+            btn.classList.remove("duk-green");
+            btn.classList.add("duk-red");
+        }
     }
 }()); 
 

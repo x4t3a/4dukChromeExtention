@@ -2,9 +2,9 @@
 "use strict";
 
 var duk = (function() {
-    var streams = { 40  : "http://radio.4duk.ru/4duk40.mp3"
-                  , 64  : "http://radio.4duk.ru/4duk64.mp3"
-                  , 128 : "http://radio.4duk.ru/4duk128.mp3"
+    var streams = { "40"  : "http://radio.4duk.ru/4duk40.mp3"
+                  , "64"  : "http://radio.4duk.ru/4duk64.mp3"
+                  , "128" : "http://radio.4duk.ru/4duk128.mp3"
                   };
 
     var audio = new Audio(); var playing = false;
@@ -34,9 +34,9 @@ var duk = (function() {
     }
 
     function shiftQuality() {
-        var stream_quality = { 40  : 64
-                             , 64  : 128
-                             , 128 : 40
+        var stream_quality = { "40"  : "64"
+                             , "64"  : "128"
+                             , "128" : "40"
                              }[ getStreamQuality() ];
         var was_playing = isPlaying();
         stopPlaying();
