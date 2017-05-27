@@ -10,7 +10,7 @@ var duk = (function() {
     var audio = new Audio(); var playing = false;
 
     function isPlaying() { return playing; }
-    function setPlaying(p) { playing = true; return playing; }
+    function setPlaying(p) { playing = p; return playing; }
 
     function getStreamQuality()        { return localStorage[ "stream_quality" ] || 128; }
     function setStreamQuality(stream_quality) { localStorage[ "stream_quality" ] = stream_quality; }
