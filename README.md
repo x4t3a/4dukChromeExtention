@@ -1,8 +1,8 @@
 4dukChromeButton
 ================
 
-- [+] text stuff
-- [] shortcut
-- [+] choose quality
-- [] design
-
+TODO
+----
+ - [ ] volume bar
+ - [ ] update UI when the ext. toggled via the shortcut
+ - [ ] VIP qual./log in
