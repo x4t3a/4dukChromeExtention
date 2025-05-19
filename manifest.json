@@ -1,28 +1,32 @@
 {
-   "background": {
-      "scripts": [ "background.js" ],
-      "persistent": true
+   "manifest_version": 3,
+   "name": "4duk",
+   "version": "0.4.2",
+   "description": "Быстрокнопка 4duk",
+   "icons": {
+      "128": "icon.png"
    },
-   "browser_action": {
+   "action": {
       "default_icon": "icon.png",
       "default_popup": "popup.html",
       "default_title": "4duk"
    },
+   "background": {
+      "service_worker": "background.js",
+      "type": "module"
+   },
    "commands": {
-        "toogle-playing": {
-            "suggested_key": {
-              "default": "Ctrl+Shift+4"
-            },
-            "description": "Вкл/Выкл",
-            "global": true
-        }
+      "toogle-playing": {
+         "suggested_key": {
+            "default": "Ctrl+Shift+4"
+         },
+         "description": "Вкл/Выкл",
+         "global": true
+      }
    },
-   "description": "Быстрокнопка 4duk",
    "homepage_url": "https://x4t3a.github.io/4duk/",
-   "icons": {
-      "128": "icon.png"
-   },
-   "manifest_version": 2,
-   "name": "4duk",
-   "version": "0.4"
+   "permissions": [
+      "storage",
+      "commands"
+   ]
 }

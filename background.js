@@ -1,72 +1,102 @@
-;
 "use strict";
 
-var duk = (function() {
-    var streams = { "40"  : "http://radio.4duk.ru/4duk40.mp3"
-                  , "64"  : "http://radio.4duk.ru/4duk64.mp3"
-                  , "128" : "http://radio.4duk.ru/4duk128.mp3"
-                  };
+const streams = {
+    "40": "http://radio.4duk.ru/4duk40.mp3",
+    "64": "http://radio.4duk.ru/4duk64.mp3",
+    "128": "http://radio.4duk.ru/4duk128.mp3"
+};
 
-    var audio = new Audio(); var playing = false;
+let audio = null;
+let playing = false;
 
-    function isPlaying() { return playing; }
-    function setPlaying(p) { playing = p; return playing; }
+function isPlaying() { return playing; }
+function setPlaying(p) { playing = p; return playing; }
 
-    function getStreamQuality()        { return localStorage[ "stream_quality" ] || "128"; }
-    function setStreamQuality(stream_quality) { localStorage[ "stream_quality" ] = stream_quality; }
+async function getStreamQuality() {
+    const result = await chrome.storage.local.get("stream_quality");
+    return result.stream_quality || "128";
+}
 
-    function startPlaying() {
-        audio.src = streams[ getStreamQuality() ];
-        audio.load();
-        audio.play();
-        setPlaying(true);
+async function setStreamQuality(stream_quality) {
+    await chrome.storage.local.set({ stream_quality });
+}
 
-        console.log(arguments.callee.name, audio.src);
+async function startPlaying() {
+    if (!audio) {
+        audio = new Audio();
+
+        audio.addEventListener('error', (e) => {
+            console.error('Audio error:', e);
+            setPlaying(false);
+        });
     }
 
-    function stopPlaying() {
+    const quality = await getStreamQuality();
+    audio.src = streams[quality];
+    await audio.play();
+    setPlaying(true);
+    console.log('startPlaying', audio.src);
+}
+
+function stopPlaying() {
+    if (audio) {
         audio.pause();
         audio.currentTime = 0;
         audio.src = "";
         setPlaying(false);
-
-        console.log(arguments.callee.name);
     }
+    console.log('stopPlaying');
+}
 
-    function shiftQuality() {
-        var stream_quality = { "40"  : "64"
-                             , "64"  : "128"
-                             , "128" : "40"
-                             }[ getStreamQuality() ];
-        var was_playing = isPlaying();
-        stopPlaying();
-        setStreamQuality(stream_quality);
-        if (was_playing) { startPlaying(); }
+async function shiftQuality() {
+    const currentQuality = await getStreamQuality();
+    const stream_quality = {
+        "40": "64",
+        "64": "128",
+        "128": "40"
+    }[currentQuality];
 
-        console.log(arguments.callee.name);
+    const was_playing = isPlaying();
+    stopPlaying();
+    await setStreamQuality(stream_quality);
+    if (was_playing) {
+        await startPlaying();
     }
+    console.log('shiftQuality');
+}
 
-    chrome.commands.onCommand.addListener(function(command) {
-        console.log("chrome commands' listener: ", command);
+chrome.commands.onCommand.addListener(async (command) => {
+    console.log("chrome commands' listener: ", command);
 
-        switch (command) {
-            case "toogle-playing": {
-                if (isPlaying()) {
-                    stopPlaying();
-                } else {
-                    startPlaying();
-                }
+    switch (command) {
+        case "toogle-playing": {
+            if (isPlaying()) {
+                stopPlaying();
+            } else {
+                await startPlaying();
             }
+            break;
         }
-    });
+    }
+});
 
-    return { startPlaying     : startPlaying
-           , stopPlaying      : stopPlaying
-           , shiftQuality     : shiftQuality
-           , isPlaying        : isPlaying
-           , getStreamQuality : getStreamQuality
-    };
-}());
-
-function getDuk() { return duk; };
-
+chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
+    switch (request.action) {
+        case 'startPlaying':
+            startPlaying().then(() => sendResponse({ success: true }));
+            return true;
+        case 'stopPlaying':
+            stopPlaying();
+            sendResponse({ success: true });
+            break;
+        case 'shiftQuality':
+            shiftQuality().then(() => sendResponse({ success: true }));
+            return true;
+        case 'isPlaying':
+            sendResponse({ playing: isPlaying() });
+            break;
+        case 'getStreamQuality':
+            getStreamQuality().then(quality => sendResponse({ quality }));
+            return true;
+    }
+});
