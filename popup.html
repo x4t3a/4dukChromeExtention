@@ -1,60 +1,106 @@
-<!doctype html>
+<!DOCTYPE html>
 <html>
-<head lang='ru'>
-    <title>4duk</title>
-    <meta charset="utf-8">
+
+<head>
+    <meta charset="UTF-8">
     <style>
-        html, body {
-            margin: 0;
-            padding: 0;
-            width: 170px;
-        }
-
-        .duk-btn {
-            border: none;
-            display: inline-block;
-            outline:0;
-            padding: 8px 16px;
-            vertical-align: middle;
-            overflow: hidden;
-            text-decoration: none;
-            color: inherit;
-            background-color: inherit;
+        body {
+            width: 280px;
+            min-height: 180px;
+            padding: 15px;
+            font-family: 'Segoe UI', Arial, sans-serif;
             text-align: center;
+            background: #f8f9fa;
+            /* Soft light background */
+            border-radius: 16px;
+            box-sizing: border-box;
+            margin: 0;
+            color: #333;
+        }
+
+        h3 a {
+            color: #333;
+            text-decoration: none;
+            font-size: 18px;
+            font-weight: 600;
+        }
+
+        h3 a:hover {
+            text-decoration: underline;
+            color: #e67e22;
+            /* Orange hover */
+        }
+
+        #radioBtn {
+            width: 100px;
+            height: 100px;
+            border-radius: 50%;
+            border: none;
+            background: #e67e22;
+            /* Consistent orange */
+            color: white;
+            font-size: 14px;
+            font-weight: bold;
             cursor: pointer;
-            white-space: nowrap;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s ease;
+            outline: none;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 10px;
+            padding: 0;
         }
 
-        .duk-block {
-            display: block;
-            width: 100%;
+        #radioBtn:hover {
+            transform: scale(1.05);
+            background: #d35400;
+            /* Darker orange on hover */
         }
 
-        .duk-orange      { color: white !important; background-color: orange  !important; }
-        .duk-green       { color: white !important; background-color: green   !important; }
-        .duk-red         { color: white !important; background-color: red     !important; }
-        .duk-low-quality { color: white !important; background-color: olive   !important; }
-        .duk-mid-quality { color: white !important; background-color: #673ab7 !important; }
-        .duk-hig-quality { color: white !important; background-color: #009688 !important; }
+        #radioBtn:active {
+            transform: scale(0.98);
+        }
+
+        #status {
+            font-size: 13px;
+            color: #555;
+            min-height: 18px;
+            margin: 5px 0;
+            padding: 3px 0;
+            font-style: italic;
+        }
+
+        .icon {
+            font-size: 28px;
+            margin-bottom: 5px;
+        }
+
+        #radioBtn.connecting .icon {
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% {
+                transform: rotate(0deg);
+            }
+
+            100% {
+                transform: rotate(360deg);
+            }
+        }
     </style>
 </head>
 
 <body>
-    <div>
-            <button class="duk-btn duk-block duk-orange"
-                    id="4duk_link">
-                4duk
-            </button>
-            <button class="duk-btn duk-block"
-                    id="toggle_btn">
-                Вкл/Выкл
-            </button>
-            <button class="duk-btn duk-block"
-                    id="quality_btn">
-                Качество
-            </button>
-        </div>
-    <div>
+    <h3><a href="http://4duk.ru/4duk/" target="_blank">4duk</a></h3>
+    <button id="radioBtn">
+        <div class="icon">⏹️</div>
+        <div>готовъ</div>
+    </button>
+    <div id="status">к работе готовъ</div>
     <script src="popup.js"></script>
 </body>
+
 </html>

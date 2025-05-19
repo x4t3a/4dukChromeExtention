@@ -1,94 +1,73 @@
-"use strict";
+document.addEventListener('DOMContentLoaded', async function () {
+    const radioBtn = document.getElementById('radioBtn');
+    const statusText = document.getElementById('status');
+    const icon = radioBtn.querySelector('.icon');
+    const btnText = radioBtn.querySelector('div:not(.icon)');
+    let isPlaying = false;
 
-(async function () {
-    window.addEventListener("load", setUpListeners);
-
-    async function sendMessage(action) {
-        return new Promise((resolve) => {
-            chrome.runtime.sendMessage({ action }, (response) => {
-                resolve(response);
-            });
-        });
+    // Load saved state
+    const result = await chrome.storage.local.get(['radioPlaying']);
+    if (result.radioPlaying) {
+        setPlayingState(true);
     }
 
-    async function setUpListeners() {
-        console.log('setUpListeners');
+    // Button click handler
+    radioBtn.addEventListener('click', async function () {
+        const desiredState = !isPlaying;
+        setLoadingState(desiredState);
 
-        await setQualityBtnText();
-        await setToggleBtnText();
+        try {
+            const response = await chrome.runtime.sendMessage({
+                action: "setState",
+                state: desiredState
+            });
 
-        document.getElementById("toggle_btn")
-            .addEventListener("click", async function () {
-                const response = await sendMessage('isPlaying');
-                if (response.playing) {
-                    await sendMessage('stopPlaying');
-                    setToggleBtnText("Вкл");
-                } else {
-                    await sendMessage('startPlaying');
-                    setToggleBtnText("Выкл");
+            setTimeout(() => {
+                if (isPlaying === desiredState) {
+                    setPlayingState(desiredState);
                 }
-            });
+            }, 1000);
 
-        document.getElementById("4duk_link")
-            .addEventListener("click", function () {
-                chrome.tabs.create({ url: "http://4duk.ru" });
-            });
-
-        document.getElementById("quality_btn")
-            .addEventListener("click", async function () {
-                await sendMessage('shiftQuality');
-                await setQualityBtnText();
-            });
-    }
-
-    async function setQualityBtnText() {
-        const response = await sendMessage('getStreamQuality');
-        const quality = response.quality;
-        var stream = null;
-        var btn = document.getElementById("quality_btn");
-
-        switch (quality) {
-            case "40": {
-                stream = {
-                    name: "Экономно"
-                    , rem: "duk-hig-quality"
-                    , add: "duk-low-quality"
-                };
-            } break;
-            case "64": {
-                stream = {
-                    name: "С лёгкими помехами"
-                    , rem: "duk-low-quality"
-                    , add: "duk-mid-quality"
-                };
-            } break;
-            case "128": {
-                stream = {
-                    name: "Зело квалитетно"
-                    , rem: "duk-mid-quality"
-                    , add: "duk-hig-quality"
-                };
-            } break;
+        } catch (error) {
+            console.error("Error toggling radio:", error);
+            setPlayingState(false);
+            statusText.textContent = "Ошибка - попробуйте снова";
         }
+    });
 
-        btn.classList.remove(stream.rem);
-        btn.classList.add(stream.add);
-        btn.textContent = stream.name;
+    // Listen for playback updates
+    chrome.runtime.onMessage.addListener((request) => {
+        if (request.action === "playbackStarted") {
+            setPlayingState(true);
+        } else if (request.action === "playbackStopped") {
+            setPlayingState(false);
+        } else if (request.action === "playbackFailed") {
+            setPlayingState(false);
+            statusText.textContent = "Ошибка соединения";
+        }
+    });
+
+    function setLoadingState(loading) {
+        radioBtn.disabled = true;
+        statusText.textContent = loading ? 'выходим в iфир...' : 'auf wiedersehen...';
+        radioBtn.classList.toggle('connecting', loading);
+        icon.textContent = loading ? '🔄' : '⏹️';
+        btnText.textContent = loading ? '...' : 'готовъ';
     }
 
-    async function setToggleBtnText() {
-        const response = await sendMessage('isPlaying');
-        var text = null;
-        var btn = document.getElementById("toggle_btn");
+    function setPlayingState(playing) {
+        isPlaying = playing;
+        radioBtn.disabled = false;
+        radioBtn.classList.remove('connecting');
 
-        if (response.playing) {
-            btn.textContent = "Выкл";
-            btn.classList.remove("duk-red");
-            btn.classList.add("duk-green");
+        if (playing) {
+            icon.textContent = '▶️';
+            btnText.textContent = 'в iфире';
+            statusText.textContent = 'идётъ трансляция';
         } else {
-            btn.textContent = "Вкл";
-            btn.classList.remove("duk-green");
-            btn.classList.add("duk-red");
+            icon.textContent = '⏹️';
+            btnText.textContent = 'готовъ';
+            statusText.textContent = 'к работе готовъ';
         }
     }
-}());
+});
