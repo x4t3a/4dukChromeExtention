@@ -21,7 +21,7 @@ chrome.runtime.onMessage.addListener(async (request, sender, sendResponse) => {
                     await audio.play();
                 } catch (error) {
                     console.error("Playback failed:", error);
-                    await chrome.storage.local.set({ radioPlaying: false });
+                    await chrome.storage.session.set({ radioPlaying: false });
                     chrome.runtime.sendMessage({ action: "playbackFailed" });
                 }
             }
@@ -38,7 +38,7 @@ chrome.runtime.onMessage.addListener(async (request, sender, sendResponse) => {
 });
 
 (async () => {
-    const result = await chrome.storage.local.get(['radioPlaying']);
+    const result = await chrome.storage.session.get(['radioPlaying']);
     if (result.radioPlaying) {
         audio = new Audio('http://radio.4duk.ru/4duk128.mp3');
         audio.loop = true;
@@ -46,7 +46,7 @@ chrome.runtime.onMessage.addListener(async (request, sender, sendResponse) => {
             await audio.play();
         } catch (error) {
             console.error("Initial playback failed:", error);
-            await chrome.storage.local.set({ radioPlaying: false });
+            await chrome.storage.session.set({ radioPlaying: false });
         }
     }
 })();
