@@ -6,7 +6,7 @@ document.addEventListener('DOMContentLoaded', async function () {
     let isPlaying = false;
 
     // Load saved state
-    const result = await chrome.storage.local.get(['radioPlaying']);
+    const result = await chrome.storage.session.get(['radioPlaying']);
     if (result.radioPlaying) {
         setPlayingState(true);
     }

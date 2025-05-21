@@ -24,7 +24,7 @@ async function setupOffscreenDocument() {
 chrome.runtime.onMessage.addListener(async (request, sender, sendResponse) => {
     try {
         if (request.action === "setState") {
-            await chrome.storage.local.set({ radioPlaying: request.state });
+            await chrome.storage.session.set({ radioPlaying: request.state });
 
             if (request.state) {
                 await setupOffscreenDocument();
@@ -55,10 +55,10 @@ async function sendMessageWithRetry(message, retries = 3) {
 }
 
 chrome.runtime.onInstalled.addListener(async () => {
-    await chrome.storage.local.set({ radioPlaying: false });
+    await chrome.storage.session.set({ radioPlaying: false });
 });
 
 chrome.runtime.onSuspend.addListener(async () => {
-    await chrome.storage.local.set({ radioPlaying: false });
+    await chrome.storage.session.set({ radioPlaying: false });
     await sendMessageWithRetry({ action: "stop" });
 });
